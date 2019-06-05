@@ -1,10 +1,13 @@
-pipeline {
-  environment {
-    registry = "ratankb/node-app1"
-    registryCredential = 'DockerHubID'
-    dockerImage = ''
-  }
-  agent any
+#!groovy 
+
+node { 
+
+Environment Variables 
+env.instance_id = "${instance_id}" 
+echo "${env.instance_id}" 
+
+withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'green_berets', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]){ 
+agent any
   stages {
     stage('Cloning Git') {
       steps {
@@ -14,14 +17,14 @@ pipeline {
     stage('EC2 de-tag TG') {
       steps{
         script {
-          aws elbv2 deregister-targets --target-group-arn arn:aws:elasticloadbalancing:ca-central-1:228804139688:loadbalancer/app/GB-TIC-LB1/3be466df58af6fa4  --targets Id=$instanceid
+          aws elbv2 deregister-targets --target-group-arn 'arn:aws:elasticloadbalancing:ca-central-1:228804139688:loadbalancer/app/GB-TIC-LB1/3be466df58af6fa4'  --targets Id=$instanceid
         }
       }
     }
     stage('Code Deploy') {
       steps{
          script {
-            sh 
+            echo " Code Deploy" 
           }
         }
       }
@@ -30,7 +33,7 @@ pipeline {
       steps{
          script {
             timeout(time:5, unit:'DAYS') {
-            input message:'Approve deployment?'
+            input message:'QA Sign-off ?'
             }
           }
         }
