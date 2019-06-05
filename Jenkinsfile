@@ -14,15 +14,14 @@ pipeline {
     stage('EC2 de-tag TG') {
       steps{
         script {
-          dockerImage = docker.build registry + ":$BUILD_NUMBER"
+          aws elbv2 deregister-targets --target-group-arn arn:aws:elasticloadbalancing:ca-central-1:228804139688:loadbalancer/app/GB-TIC-LB1/3be466df58af6fa4  --targets Id=$instanceid
         }
       }
     }
     stage('Code Deploy') {
       steps{
          script {
-            docker.withRegistry( '', registryCredential ) {
-            dockerImage.push()
+            sh 
           }
         }
       }
@@ -30,21 +29,16 @@ pipeline {
     stage('QA Sign-off') {
       steps{
          script {
-            //configure registry
-            docker.withRegistry('https://044661814431.dkr.ecr.us-east-2.amazonaws.com', 'ecr:us-east-2:aab5d928-39d8-4ce2-92af-ce9635a361e7') {
-           
-            //build image
-            def customImage = docker.build("sample-nodejs-app1:latest")
-             
-            //push image
-            customImage.push()
-        }
+            timeout(time:5, unit:'DAYS') {
+            input message:'Approve deployment?'
+            }
+          }
         }
       }
     }
     stage('EC2 add to TG') {
       steps{
-        sh "docker rmi $registry:$BUILD_NUMBER"
+        aws elbv2 register-targets --target-group-arn arn:aws:elasticloadbalancing:ca-central-1:228804139688:loadbalancer/app/GB-TIC-LB1/3be466df58af6fa4 --targets Id=$instanceid
        }
     }
   }
