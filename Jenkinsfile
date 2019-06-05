@@ -17,7 +17,7 @@ agent any
     stage('EC2 de-tag TG') {
       steps{
         script {
-          aws elbv2 deregister-targets --target-group-arn 'arn:aws:elasticloadbalancing:ca-central-1:228804139688:loadbalancer/app/GB-TIC-LB1/3be466df58af6fa4'  --targets Id=$instanceid
+          aws('elbv2 deregister-targets --target-group-arn arn:aws:elasticloadbalancing:ca-central-1:228804139688:loadbalancer/app/GB-TIC-LB1/3be466df58af6fa4  --targets Id=$instanceid')
         }
       }
     }
