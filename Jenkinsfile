@@ -1,13 +1,12 @@
 #!groovy 
 
 node { 
+  Environment Variables 
+  env.instance_id = "${instance_id}" 
+  echo "${env.instance_id}" 
 
-Environment Variables 
-env.instance_id = "${instance_id}" 
-echo "${env.instance_id}" 
-
-withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'green_berets', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]){ 
-agent any
+  withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'green_berets', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]){ 
+  agent any
   stages {
     stage('Cloning Git') {
       steps {
@@ -25,8 +24,7 @@ agent any
       steps{
          script {
             echo " Code Deploy" 
-          }
-        }
+         }
       }
     }
     stage('QA Sign-off') {
@@ -34,7 +32,6 @@ agent any
          script {
             timeout(time:5, unit:'DAYS') {
             input message:'QA Sign-off ?'
-            }
           }
         }
       }
@@ -42,7 +39,6 @@ agent any
     stage('EC2 add to TG') {
       steps{
         sh 'aws elbv2 register-targets --target-group-arn arn:aws:elasticloadbalancing:ca-central-1:228804139688:loadbalancer/app/GB-TIC-LB1/3be466df58af6fa4 --targets Id=$instanceid'
-       }
-    }
-  }
+      }
+   }
 }
