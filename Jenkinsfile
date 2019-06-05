@@ -8,17 +8,17 @@ pipeline {
   stages {
     stage('Cloning Git') {
       steps {
-        git 'https://github.com/ratanbekal/docker-app1'
+        git 'https://github.com/ticmagicians/gbweb'
       }
     }
-    stage('Building image') {
+    stage('EC2 de-tag TG') {
       steps{
         script {
           dockerImage = docker.build registry + ":$BUILD_NUMBER"
         }
       }
     }
-    stage('Docker Repo Push') {
+    stage('Code Deploy') {
       steps{
          script {
             docker.withRegistry( '', registryCredential ) {
@@ -27,7 +27,7 @@ pipeline {
         }
       }
     }
-    stage('ECR Push') {
+    stage('QA Sign-off') {
       steps{
          script {
             //configure registry
@@ -42,7 +42,7 @@ pipeline {
         }
       }
     }
-    stage('Remove Unused docker image') {
+    stage('EC2 add to TG') {
       steps{
         sh "docker rmi $registry:$BUILD_NUMBER"
        }
