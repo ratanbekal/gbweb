@@ -6,13 +6,14 @@ node {
     echo "${env.instance_id}" 
 
     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'green_berets', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]){ 
-    agent any
-    stages {
+
+        
         stage('Cloning Git') {
           steps {
             git 'https://github.com/ticmagicians/gbweb'
           }
         }
+        
         stage('EC2 de-tag TG') {
           steps{
             script {
@@ -20,6 +21,7 @@ node {
             }
           }
         }
+        
         stage('Code Deploy') {
           steps{
             script {
@@ -27,6 +29,7 @@ node {
             }
           }
         }
+        
         stage('QA Sign-off') {
           steps{
             script {
@@ -36,11 +39,13 @@ node {
             }
           }
         }
+        
         stage('EC2 add to TG') {
           steps{
             sh 'aws elbv2 register-targets --target-group-arn arn:aws:elasticloadbalancing:ca-central-1:228804139688:loadbalancer/app/GB-TIC-LB1/3be466df58af6fa4 --targets Id=$instanceid'
           }
         }
       }
-    }
-}
+    
+    
+ }
